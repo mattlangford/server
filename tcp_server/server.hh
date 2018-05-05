@@ -9,6 +9,8 @@
 namespace server
 {
 
+typedef int socket_handle;
+
 ///
 /// Network server that will listen and trigger callbacks asynchronously
 ///
@@ -30,7 +32,7 @@ public: ///////////////////////////////////////////////////////////////////////
     /// be forwarded to all the registered callbacks. Callbacks shouldn't be blocking, since they are
     /// run in the same thread as the listener.
     ///
-    using callback = std::function<void(const std::vector<uint8_t>&)>;
+    using callback = std::function<void(const socket_handle& fd, const std::vector<uint8_t>&)>;
     inline void register_callback(callback&& cb)
     {
         callbacks.emplace_back(std::move(cb));
@@ -41,17 +43,22 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     void listen_forever() const;
 
+    ///
+    /// Writes a vector of bytes onto the given socket
+    ///
+    static void write(const socket_handle& fd, const std::vector<uint8_t>& data);
+
 private: //////////////////////////////////////////////////////////////////////
     ///
     /// Throw an error using the error number (converted to a string)
     ///
-    void throw_errno(const std::string& message) const;
+    static void throw_errno(const std::string& message);
 
 private: //////////////////////////////////////////////////////////////////////
     ///
     /// File descriptor for the server
     ///
-    const int server_fd;
+    const socket_handle server_fd;
 
     ///
     /// Have we bound to a port already?

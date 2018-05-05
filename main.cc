@@ -24,7 +24,7 @@ int main()
     server::server s;
     s.bind_to_port(7777);
 
-    server::server::callback dispatch_cb = [](const std::vector<uint8_t>& data)
+    server::server::callback dispatch_cb = [](const server::socket_handle& handle, const std::vector<uint8_t>& data)
     {
         callback({data.begin(), data.end()});
     };

@@ -83,7 +83,7 @@ void server::listen_forever() const
         //
         // Accept a new message from the socket, keep track of who wrote to us
         //
-        const int recv_fd = accept(server_fd, (struct sockaddr *) &client_addr, &client_len);
+        const socket_handle recv_fd = accept(server_fd, (struct sockaddr *) &client_addr, &client_len);
 
         //
         // Create a buffer that we'll use to read that file descriptor with
@@ -117,17 +117,33 @@ void server::listen_forever() const
         //
         for (const callback& cb : callbacks)
         {
-            cb(data);
+            cb(recv_fd, data);
         }
     }
 }
-
 
 //
 // ############################################################################
 //
 
-void server::throw_errno(const std::string& message) const
+void write(const socket_handle& fd, const std::vector<uint8_t>& data)
+{
+    constexpr int FLAGS = 0;
+    const size_t bytes_sent = send(fd, data.data(), data.size(), FLAGS);
+
+    if (bytes_sent != data.size())
+    {
+        std::stringstream ss;
+        ss << "Wrote " << bytes_sent << ", but wanted to write " << data.size();
+        throw std::runtime_error(ss.str());
+    }
+}
+
+//
+// ############################################################################
+//
+
+void server::throw_errno(const std::string& message)
 {
     std::stringstream ss;
     ss << message << " Error: (" << errno << ") " << strerror(errno);
