@@ -33,7 +33,24 @@ struct GET
     ///
     /// Parse a GET request from a general message
     ///
-    static GET from_general_message(const general_message& message);
+    static GET from_general_message(general_message message);
+};
+
+///
+/// Used to put data to the server, format TBD
+///
+struct PUT
+{
+    std::string http_version;
+
+    std::unordered_map<std::string, std::string> metadata;
+
+    std::string put_data;
+
+    ///
+    /// Parse a PUT request from a general message
+    ///
+    static PUT from_general_message(general_message message);
 };
 
 }

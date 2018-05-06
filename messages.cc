@@ -1,5 +1,6 @@
 #include "messages.hh"
 
+#include <sstream>
 #include <iostream>
 #include <vector>
 
@@ -74,4 +75,57 @@ general_message general_message::from_string(const std::string& data)
     result.body = data.substr(start_of_metdata_line + NEWLINE_SIZE);
 
     return result;
+}
+
+//
+// ############################################################################
+//
+
+namespace requests
+{
+
+GET GET::from_general_message(general_message message)
+{
+    //
+    // Make sure this is a GET request
+    //
+    constexpr auto GET_id = "GET";
+    constexpr size_t GET_id_len = 3;
+    if (message.header.substr(0, GET_id_len) != GET_id)
+    {
+        std::stringstream ss;
+        throw std::runtime_error("Trying to parse a non GET request.");
+    }
+
+    GET result;
+
+    //
+    // The url should be right after the start, grab that and the HTTP version
+    //
+    const size_t front_space = message.header.find(' ');
+    const size_t end_space = message.header.rfind(' ');
+    if (front_space == end_space)
+    {
+        throw std::runtime_error("Unable to parse header! Needs atleast two spaces.");
+    }
+
+    constexpr size_t SPACE_WIDTH = 1;
+    const size_t url_length = end_space - front_space - SPACE_WIDTH;
+    result.url = message.header.substr(front_space + SPACE_WIDTH, url_length);
+    result.http_version = message.header.substr(end_space + SPACE_WIDTH);
+
+    result.metadata = std::move(message.metadata);
+
+    //
+    // A single slash like this means give me the homepage, so let's replace it here
+    //
+    if (result.url == "/")
+    {
+        constexpr auto HOMEPAGE_URL = "/index.html";
+        result.url = HOMEPAGE_URL;
+    }
+
+    return result;
+}
+
 }

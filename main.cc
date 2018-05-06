@@ -1,16 +1,8 @@
-#include "tcp_server/tcp_server.hh"
+#include "http_server.hh"
 
 #include <iostream>
 #include <vector>
 #include <string>
-
-void callback(const std::string& recv)
-{
-    std::cout << "New Message!! (" << recv.size() << " bytes)\n";
-    std::cout << "=============================================================\n";
-    std::cout << recv;
-    std::cout << "=============================================================\n";
-}
 
 //
 // ############################################################################
@@ -18,14 +10,19 @@ void callback(const std::string& recv)
 
 int main()
 {
-    server::tcp_server s;
-    s.bind_to_port(80);
+    http_server server(8080);
 
-    server::tcp_server::callback dispatch_cb = [](const server::socket_handle& handle, const std::vector<uint8_t>& data)
+    http_server::http_resource homepage;
+    homepage.url = "/index.html";
+    std::string homepage_data = "<html><head></head><body>Hello World!</body></html>";
+    homepage.data = std::vector<uint8_t>(homepage_data.begin(), homepage_data.end());
+    server.add_resource(std::move(homepage));
+
+    server.start_server();
+
+    while (true)
     {
-        callback({data.begin(), data.end()});
-    };
-    s.register_callback(std::move(dispatch_cb));
-
-    s.listen_forever();
+        constexpr auto ONE_SECOND = std::chrono::duration<double>(1.0);
+        std::this_thread::sleep_for(ONE_SECOND);
+    }
 }

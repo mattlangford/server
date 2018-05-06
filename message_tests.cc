@@ -34,6 +34,16 @@ void check_GET_message()
     // Body should be empty
     //
     assert(message.body.empty());
+
+    //
+    // Parse the message and check GET specific fields
+    //
+    requests::GET parsed_message = requests::GET::from_general_message(std::move(message));
+
+    assert(parsed_message.url == "/index.html");
+    assert(parsed_message.http_version == "HTTP/1.1");
+
+    assert(parsed_message.metadata["Host"] == "localhost");
 }
 
 
