@@ -5,6 +5,11 @@ cc_binary(
 )
 
 cc_library(
+    name = "logging",
+    hdrs = ["logging.hh"]
+)
+
+cc_library(
     name = "http_messages",
     srcs = ["messages.cc"],
     hdrs = ["messages.hh"]
@@ -15,7 +20,8 @@ cc_library(
     srcs = ["http_server.cc"],
     hdrs = ["http_server.hh"],
     deps = ["//tcp_server:tcp_server",
-            ":http_messages"],
+            ":http_messages",
+            ":logging"],
     linkopts = ["-lpthread"]
 )
 
