@@ -14,13 +14,13 @@ typedef int socket_handle;
 ///
 /// Network server that will listen and trigger callbacks asynchronously
 ///
-class server
+class tcp_server
 {
 public: ///////////////////////////////////////////////////////////////////////
     ///
     /// Creates the server, doesn't do much except set up the server_fd
     ///
-    server();
+    tcp_server();
 
     ///
     /// Binds this server to a specific port, this should be called EXACTLY once

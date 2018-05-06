@@ -1,11 +1,8 @@
-#include "tcp_server/server.hh"
+#include "tcp_server/tcp_server.hh"
 
 #include <iostream>
 #include <vector>
-
-//
-// ############################################################################
-//
+#include <string>
 
 void callback(const std::string& recv)
 {
@@ -21,10 +18,10 @@ void callback(const std::string& recv)
 
 int main()
 {
-    server::server s;
-    s.bind_to_port(7777);
+    server::tcp_server s;
+    s.bind_to_port(80);
 
-    server::server::callback dispatch_cb = [](const server::socket_handle& handle, const std::vector<uint8_t>& data)
+    server::tcp_server::callback dispatch_cb = [](const server::socket_handle& handle, const std::vector<uint8_t>& data)
     {
         callback({data.begin(), data.end()});
     };

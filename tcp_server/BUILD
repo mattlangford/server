@@ -1,7 +1,7 @@
 cc_library(
-    name = "server",
-    srcs = ["server.cc"],
-    hdrs = ["server.hh"],
+    name = "tcp_server",
+    srcs = ["tcp_server.cc"],
+    hdrs = ["tcp_server.hh"],
     visibility = ["//visibility:public"]
 )
 

@@ -1,5 +1,3 @@
-#include "tcp_server/server.hh"
-
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -12,6 +10,7 @@
 #include <vector>
 #include <sstream>
 
+#include "tcp_server/tcp_server.hh"
 
 namespace server
 {
@@ -20,7 +19,7 @@ namespace server
 // ############################################################################
 //
 
-server::server()
+tcp_server::tcp_server()
     : server_fd(socket(PF_INET, SOCK_STREAM, 0)),
       bound(false)
 {
@@ -38,7 +37,7 @@ server::server()
 // ############################################################################
 //
 
-void server::bind_to_port(const uint16_t port)
+void tcp_server::bind_to_port(const uint16_t port)
 {
     if (bound)
     {
@@ -62,7 +61,7 @@ void server::bind_to_port(const uint16_t port)
 // ############################################################################
 //
 
-void server::listen_forever() const
+void tcp_server::listen_forever() const
 {
     if (bound == false)
     {
@@ -126,7 +125,7 @@ void server::listen_forever() const
 // ############################################################################
 //
 
-void write(const socket_handle& fd, const std::vector<uint8_t>& data)
+void tcp_server::write(const socket_handle& fd, const std::vector<uint8_t>& data)
 {
     constexpr int FLAGS = 0;
     const size_t bytes_sent = send(fd, data.data(), data.size(), FLAGS);
@@ -143,7 +142,7 @@ void write(const socket_handle& fd, const std::vector<uint8_t>& data)
 // ############################################################################
 //
 
-void server::throw_errno(const std::string& message)
+void tcp_server::throw_errno(const std::string& message)
 {
     std::stringstream ss;
     ss << message << " Error: (" << errno << ") " << strerror(errno);
