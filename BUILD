@@ -12,7 +12,8 @@ cc_library(
 cc_library(
     name = "http_messages",
     srcs = ["messages.cc"],
-    hdrs = ["messages.hh"]
+    hdrs = ["messages.hh"],
+    deps = ["//tcp_server:tcp_server"]
 )
 
 cc_library(

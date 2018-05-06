@@ -14,8 +14,7 @@ int main()
 
     http_server::http_resource homepage;
     homepage.url = "/index.html";
-    std::string homepage_data = "<html><head></head><body>Hello World!</body></html>";
-    homepage.data = std::vector<uint8_t>(homepage_data.begin(), homepage_data.end());
+    homepage.data = "<html><head></head><body>Hello World!</body></html>";
     server.add_resource(std::move(homepage));
 
     server.start_server();

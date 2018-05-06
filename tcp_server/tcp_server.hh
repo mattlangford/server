@@ -1,7 +1,10 @@
 #pragma once
 
+#include <sys/socket.h>
+
 #include <functional>
 #include <mutex>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -44,9 +47,21 @@ public: ///////////////////////////////////////////////////////////////////////
     void listen_forever() const;
 
     ///
-    /// Writes a vector of bytes onto the given socket
+    /// Writes the provided type to the socket, the type should have data and size functions
     ///
-    static void write(const socket_handle& fd, const std::vector<uint8_t>& data);
+    template <typename T>
+    static void write(const socket_handle& fd, const T& data)
+    {
+        constexpr int FLAGS = 0;
+        const size_t bytes_sent = send(fd, data.data(), data.size(), FLAGS);
+
+        if (bytes_sent != data.size())
+        {
+            std::stringstream ss;
+            ss << "Wrote " << bytes_sent << ", but wanted to write " << data.size();
+            throw std::runtime_error(ss.str());
+        }
+    }
 
 private: //////////////////////////////////////////////////////////////////////
     ///

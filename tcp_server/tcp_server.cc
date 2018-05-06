@@ -8,7 +8,6 @@
 #include <cstring>
 #include <stdexcept>
 #include <vector>
-#include <sstream>
 
 #include "tcp_server/tcp_server.hh"
 
@@ -118,23 +117,6 @@ void tcp_server::listen_forever() const
         {
             cb(recv_fd, data);
         }
-    }
-}
-
-//
-// ############################################################################
-//
-
-void tcp_server::write(const socket_handle& fd, const std::vector<uint8_t>& data)
-{
-    constexpr int FLAGS = 0;
-    const size_t bytes_sent = send(fd, data.data(), data.size(), FLAGS);
-
-    if (bytes_sent != data.size())
-    {
-        std::stringstream ss;
-        ss << "Wrote " << bytes_sent << ", but wanted to write " << data.size();
-        throw std::runtime_error(ss.str());
     }
 }
 

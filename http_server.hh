@@ -21,7 +21,7 @@ public: ///////////////////////////////////////////////////////////////////////
     struct http_resource
     {
         std::string url;
-        std::vector<uint8_t> data;
+        std::string data;
 
         typedef std::shared_ptr<http_resource> ptr;
     };

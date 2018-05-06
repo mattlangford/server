@@ -1,6 +1,11 @@
 #pragma once
+#include <chrono>
 #include <string>
 #include <unordered_map>
+
+#include "tcp_server/tcp_server.hh"
+
+typedef std::unordered_map<std::string, std::string> metadata_t;
 
 ///
 /// The most general form of request, this can be parsed into any other requests or be used to send data
@@ -8,7 +13,7 @@
 struct general_message
 {
     std::string header;
-    std::unordered_map<std::string, std::string> metadata;
+    metadata_t metadata;
     std::string body;
 
     ///
@@ -28,7 +33,7 @@ struct GET
     std::string url;
     std::string http_version;
 
-    std::unordered_map<std::string, std::string> metadata;
+    metadata_t metadata;
 
     ///
     /// Parse a GET request from a general message
@@ -43,7 +48,7 @@ struct PUT
 {
     std::string http_version;
 
-    std::unordered_map<std::string, std::string> metadata;
+    metadata_t metadata;
 
     std::string put_data;
 
@@ -52,5 +57,43 @@ struct PUT
     ///
     static PUT from_general_message(general_message message);
 };
+}
+
+namespace responses
+{
+
+namespace detail
+{
+struct abstract_response
+{
+    virtual std::string get_response_code() const = 0;
+
+    metadata_t metadata;
+    std::string body;
+};
+}
+
+///
+/// The last thing we wanted to do was well received by the server
+///
+struct OK final : public detail::abstract_response
+{
+    constexpr static auto CODE = "200 OK";
+    inline virtual std::string get_response_code() const { return CODE; }
+};
+
+///
+/// If a resource was not found, this is returned to tell the user they're garbage
+///
+struct NOT_FOUND final : public detail::abstract_response
+{
+    constexpr static auto CODE = "404 Not Found";
+    inline virtual std::string get_response_code() const { return CODE; }
+};
+
+///
+/// Using one of the above types, response to the given message
+///
+std::string generate_response(const detail::abstract_response& response);
 
 }

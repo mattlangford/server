@@ -127,5 +127,41 @@ GET GET::from_general_message(general_message message)
 
     return result;
 }
+}
 
+//
+// ############################################################################
+//
+
+namespace responses
+{
+
+std::string generate_response(const detail::abstract_response& response)
+{
+    constexpr auto NEWLINE = "\r\n";
+    constexpr auto HTTP_VERSION = "HTTP/1.0";
+
+    std::stringstream response_message;
+
+    //
+    // Put in the header (which depends on the response type). The HTTP version will never change here
+    //
+    response_message << HTTP_VERSION << " " << response.get_response_code() << NEWLINE;
+
+    //
+    // All the metadata goes in next
+    //
+    for (const auto& metadata_element : response.metadata)
+    {
+        response_message << metadata_element.first << ": " << metadata_element.second << NEWLINE;
+    }
+
+    //
+    // Then a blank line followed by the rest of the body
+    //
+    response_message << NEWLINE;
+    response_message << response.body;
+
+    return response_message.str();
+}
 }

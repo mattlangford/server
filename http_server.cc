@@ -119,8 +119,14 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
     const http_resource::ptr resource = fetch_resource(request.url);
     if (resource == nullptr)
     {
+        responses::NOT_FOUND response;
+        server.write(response_fd, responses::generate_response(response));
         return;
     }
 
     LOG_DEBUG("Resource found! Serving...");
+
+    responses::OK response;
+    response.body = resource->data;
+    server.write(response_fd, responses::generate_response(response));
 }
