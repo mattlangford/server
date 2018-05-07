@@ -40,7 +40,7 @@ void http_server::start_server()
 void http_server::add_resource(http_resource::ptr resource)
 {
     std::string url = resource->url;
-    LOG_DEBUG("Adding resource with URL: " << url << " (" << url.size() << ")");
+    LOG_DEBUG("Adding resource with URL: " << url << " (" << resource->data.size() << " bytes)");
 
     std::lock_guard<std::mutex> lock(resource_lock);
     resources.emplace(std::move(url), std::move(resource));
@@ -52,7 +52,7 @@ void http_server::add_resource(http_resource::ptr resource)
 
 const http_resource::ptr http_server::fetch_resource(const std::string& url) const
 {
-    LOG_DEBUG("Fetch resource with URL: " << url << " (" << url.size() << ")");
+    LOG_DEBUG("Fetch resource with URL: " << url);
 
     std::lock_guard<std::mutex> lock(resource_lock);
     const auto resource_it = resources.find(url);
@@ -130,6 +130,7 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
 
     response.metadata["Connection"] = "close";
     response.metadata["Content-Type"] = resource_type_to_string(resource->encoding);
+    response.metadata["Content-Length"] = std::to_string(response.body.size());
 
     LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));

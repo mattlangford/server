@@ -8,10 +8,19 @@
 ///
 enum class resource_type : uint8_t
 {
-    TEXT
+    TEXT,
+    ICON
 };
 
 std::string resource_type_to_string(const resource_type& type);
+
+namespace detail
+{
+struct abstract_resource
+{
+
+};
+}
 
 ///
 /// Resource we can offer up
@@ -30,3 +39,9 @@ struct http_resource
 /// changed later)
 ///
 http_resource::ptr load_html_file(const std::string& base, const std::string& path);
+
+///
+/// Load an .ico file off the disk. This will use the path as a the URL (but that can be
+/// changed later)
+///
+http_resource::ptr load_icon_file(const std::string& base, const std::string& path);
