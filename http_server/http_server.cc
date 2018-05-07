@@ -1,6 +1,6 @@
 #include "logging.hh"
 
-#include "http_server.hh"
+#include "http_server/http_server.hh"
 #include <string>
 
 #include <iostream>

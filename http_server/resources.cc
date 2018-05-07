@@ -1,4 +1,4 @@
-#include "resources.hh"
+#include "http_server/resources.hh"
 
 #include <fstream>
 #include <iostream>

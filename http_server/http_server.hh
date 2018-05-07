@@ -9,8 +9,8 @@
 #include <atomic>
 
 #include "tcp_server/tcp_server.hh"
-#include "messages.hh"
-#include "resources.hh"
+#include "http_server/messages.hh"
+#include "http_server/resources.hh"
 
 
 class http_server

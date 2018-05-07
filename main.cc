@@ -1,5 +1,5 @@
-#include "http_server.hh"
-#include "resources.hh"
+#include "http_server/http_server.hh"
+#include "http_server/resources.hh"
 
 #include <iostream>
 #include <vector>
