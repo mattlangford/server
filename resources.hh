@@ -3,6 +3,9 @@
 #include <memory>
 #include <string>
 
+///
+/// Different types of resources, this is transmitted in the metadata for HTTP responses
+///
 enum class resource_type : uint8_t
 {
     TEXT
@@ -22,3 +25,8 @@ struct http_resource
     typedef std::shared_ptr<http_resource> ptr;
 };
 
+///
+/// Load an HTML file off the disk. This will use the path as a the URL (but that can be
+/// changed later)
+///
+http_resource::ptr load_html_file(const std::string& base, const std::string& path);

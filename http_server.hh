@@ -38,7 +38,13 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     /// Add a new resource to the server, this can be fetched on request
     ///
-    void add_resource(http_resource resource);
+    void add_resource(http_resource::ptr resource);
+
+    template <typename... Args>
+    inline void add_resource(Args...args)
+    {
+        add_resource(std::make_shared<http_resource>(std::move(args...)));
+    }
 
     ///
     /// Add a new handler for PUT requests, don't block in the handler!

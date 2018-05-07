@@ -1,8 +1,11 @@
 #include "http_server.hh"
+#include "resources.hh"
 
 #include <iostream>
 #include <vector>
 #include <string>
+
+constexpr auto SERVER_PATH = "/home/matt/Documents/server/test_server";
 
 //
 // ############################################################################
@@ -12,10 +15,7 @@ int main()
 {
     http_server server(8080);
 
-    http_resource homepage;
-    homepage.url = "/index.html";
-    homepage.data = "<html><head></head><body>Hello World! Woah</body></html>";
-    server.add_resource(std::move(homepage));
+    server.add_resource(load_html_file(SERVER_PATH, "/index.html"));
 
     server.start_server();
 

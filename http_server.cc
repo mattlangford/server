@@ -37,13 +37,13 @@ void http_server::start_server()
 // ############################################################################
 //
 
-void http_server::add_resource(http_resource resource)
+void http_server::add_resource(http_resource::ptr resource)
 {
-    std::string url = resource.url;
+    std::string url = resource->url;
     LOG_DEBUG("Adding resource with URL: " << url << " (" << url.size() << ")");
 
     std::lock_guard<std::mutex> lock(resource_lock);
-    resources.emplace(url, std::make_shared<http_resource>(std::move(resource)));
+    resources.emplace(std::move(url), std::move(resource));
 }
 
 //
@@ -120,18 +120,18 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
     if (resource == nullptr)
     {
         responses::NOT_FOUND response;
+        LOG_DEBUG(response.get_response_code());
         server.write(response_fd, responses::generate_response(response));
         return;
     }
 
-    LOG_DEBUG("Resource found! Serving...");
-
     responses::OK response;
     response.body = resource->data;
-    response.metadata["Date"] = "Mon, 07 May 2018 00:06:28 GMT";
-    response.metadata["Server"] = "light_server";
+
     response.metadata["Connection"] = "close";
-    response.metadata["Content-Type"] = "text/html";
+    response.metadata["Content-Type"] = resource_type_to_string(resource->encoding);
+
+    LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));
     server.close(response_fd);
 }
