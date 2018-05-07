@@ -15,7 +15,7 @@ http_server::http_server(const uint16_t port)
     //
     // Forward any messages we get to the generic request handler
     //
-    auto dispatch = [this](const server::socket_handle& response_fd, const std::vector<uint8_t>& data){
+    auto dispatch = [this](const server::socket_handle& response_fd, const std::vector<uint8_t>& data) {
         std::string string_data(data.begin(), data.end());
         handle_generic_request(response_fd, std::move(string_data));
     };
@@ -50,7 +50,7 @@ void http_server::add_resource(http_resource resource)
 // ############################################################################
 //
 
-const http_server::http_resource::ptr http_server::fetch_resource(const std::string& url) const
+const http_resource::ptr http_server::fetch_resource(const std::string& url) const
 {
     LOG_DEBUG("Fetch resource with URL: " << url << " (" << url.size() << ")");
 
@@ -128,5 +128,10 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
 
     responses::OK response;
     response.body = resource->data;
+    response.metadata["Date"] = "Mon, 07 May 2018 00:06:28 GMT";
+    response.metadata["Server"] = "light_server";
+    response.metadata["Connection"] = "close";
+    response.metadata["Content-Type"] = "text/html";
     server.write(response_fd, responses::generate_response(response));
+    server.close(response_fd);
 }

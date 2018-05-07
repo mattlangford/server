@@ -10,22 +10,12 @@
 
 #include "tcp_server/tcp_server.hh"
 #include "messages.hh"
+#include "resources.hh"
 
 
 class http_server
 {
 public: ///////////////////////////////////////////////////////////////////////
-    ///
-    /// Resource we can offer up
-    ///
-    struct http_resource
-    {
-        std::string url;
-        std::string data;
-
-        typedef std::shared_ptr<http_resource> ptr;
-    };
-
     ///
     /// Function to handle PUT requests, may change in the future
     ///

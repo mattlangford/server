@@ -12,9 +12,9 @@ int main()
 {
     http_server server(8080);
 
-    http_server::http_resource homepage;
+    http_resource homepage;
     homepage.url = "/index.html";
-    homepage.data = "<html><head></head><body>Hello World!</body></html>";
+    homepage.data = "<html><head></head><body>Hello World! Woah</body></html>";
     server.add_resource(std::move(homepage));
 
     server.start_server();

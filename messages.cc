@@ -52,7 +52,7 @@ general_message general_message::from_string(const std::string& data)
     while (true)
     {
         //
-        // Find the next metdata line and try to part it. If we reach two newlines in a row, that means
+        // Find the next metadata line and try to part it. If we reach two newlines in a row, that means
         // we're done with metadata and should move onto the body
         //
         const size_t end_of_metadata_line = data.find(NEWLINE, start_of_metdata_line);
@@ -106,7 +106,7 @@ GET GET::from_general_message(general_message message)
     const size_t end_space = message.header.rfind(' ');
     if (front_space == end_space)
     {
-        throw std::runtime_error("Unable to parse header! Needs atleast two spaces.");
+        throw std::runtime_error("Unable to parse header! Needs at least two spaces.");
     }
 
     constexpr size_t SPACE_WIDTH = 1;
@@ -117,7 +117,7 @@ GET GET::from_general_message(general_message message)
     result.metadata = std::move(message.metadata);
 
     //
-    // A single slash like this means give me the homepage, so let's replace it here
+    // A single slash like this means the client wants the homepage, so let's replace it here
     //
     if (result.url == "/")
     {
@@ -160,7 +160,7 @@ std::string generate_response(const detail::abstract_response& response)
     // Then a blank line followed by the rest of the body
     //
     response_message << NEWLINE;
-    response_message << response.body;
+    response_message << response.body << NEWLINE;
 
     return response_message.str();
 }
