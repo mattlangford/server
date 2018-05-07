@@ -63,6 +63,25 @@ public: ///////////////////////////////////////////////////////////////////////
         }
     }
 
+    ///
+    /// Write a single message and close the connection to the client
+    ///
+    template <typename T>
+    static void write_single_message(const socket_handle& fd, const T& data)
+    {
+        write(fd, data);
+        close(fd);
+    }
+
+    ///
+    /// Signal that communications are done
+    ///
+    inline static void close(const socket_handle& fd)
+    {
+        shutdown(fd, SHUT_RDWR);
+    }
+
+
 private: //////////////////////////////////////////////////////////////////////
     ///
     /// Throw an error using the error number (converted to a string)
