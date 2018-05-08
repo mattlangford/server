@@ -1,5 +1,5 @@
 #include "http_server/http_server.hh"
-#include "http_server/resources.hh"
+#include "resources/file_resource.hh"
 
 #include <iostream>
 #include <vector>
@@ -11,11 +11,20 @@ constexpr auto SERVER_PATH = "/home/matt/Documents/server/test_server";
 // ############################################################################
 //
 
+std::shared_ptr<resources::file_resource> load_file_resource(const std::string& path)
+{
+    return std::make_shared<resources::file_resource>(SERVER_PATH, path);
+}
+
+//
+// ############################################################################
+//
+
 int main()
 {
     http_server server(8080);
 
-    server.add_resource(load_html_file(SERVER_PATH, "/index.html"));
+    server.add_resource(load_file_resource("/index.html"));
 
     server.start_server();
 

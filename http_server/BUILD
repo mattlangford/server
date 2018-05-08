@@ -1,10 +1,4 @@
 cc_library(
-    name = "resources",
-    srcs = ["resources.cc"],
-    hdrs = ["resources.hh"]
-)
-
-cc_library(
     name = "messages",
     srcs = ["messages.cc"],
     hdrs = ["messages.hh"],
@@ -17,8 +11,8 @@ cc_library(
     hdrs = ["http_server.hh"],
     deps = ["//:logging",
             "//tcp_server:tcp_server",
-            ":messages",
-            ":resources"],
+            "//resources:abstract_resource",
+            ":messages"],
     linkopts = ["-lpthread"],
     visibility = ["//visibility:public"]
 )

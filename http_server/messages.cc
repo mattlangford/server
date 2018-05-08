@@ -160,8 +160,11 @@ std::string generate_response(const detail::abstract_response& response)
     // Then a blank line followed by the rest of the body
     //
     response_message << NEWLINE;
-    response_message << response.body << NEWLINE;
+    response_message << response.data << NEWLINE;
 
+    //
+    // TODO: I'm making copies of this more than once! How rude of me
+    //
     return response_message.str();
 }
 }

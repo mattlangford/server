@@ -37,10 +37,10 @@ void http_server::start_server()
 // ############################################################################
 //
 
-void http_server::add_resource(http_resource::ptr resource)
+void http_server::add_resource(resources::abstract_resource::ptr resource)
 {
-    std::string url = resource->url;
-    LOG_DEBUG("Adding resource with URL: " << url << " (" << resource->data.size() << " bytes)");
+    std::string url = resource->get_resource_identifier();
+    LOG_DEBUG("Adding resource with URL: " << url);
 
     std::lock_guard<std::mutex> lock(resource_lock);
     resources.emplace(std::move(url), std::move(resource));
@@ -50,7 +50,7 @@ void http_server::add_resource(http_resource::ptr resource)
 // ############################################################################
 //
 
-const http_resource::ptr http_server::fetch_resource(const std::string& url) const
+const resources::abstract_resource::ptr http_server::fetch_resource(const std::string& url) const
 {
     LOG_DEBUG("Fetch resource with URL: " << url);
 
@@ -116,7 +116,7 @@ void http_server::handle_generic_request(const server::socket_handle& response_f
 
 void http_server::handle_GET_request(const server::socket_handle& response_fd, requests::GET request)
 {
-    const http_resource::ptr resource = fetch_resource(request.url);
+    resources::abstract_resource::ptr resource = fetch_resource(request.url);
     if (resource == nullptr)
     {
         responses::NOT_FOUND response;
@@ -126,11 +126,13 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
     }
 
     responses::OK response;
-    response.body = resource->data;
+
+    const resources::data_buffer buf = resource->get_resource();
+    response.data = buf.data;
 
     response.metadata["Connection"] = "close";
-    response.metadata["Content-Type"] = resource_type_to_string(resource->encoding);
-    response.metadata["Content-Length"] = std::to_string(response.body.size());
+    response.metadata["Content-Type"] = resource->get_resource_type();
+    response.metadata["Content-Length"] = std::to_string(buf.data_size);
 
     LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));

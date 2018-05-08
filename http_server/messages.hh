@@ -69,7 +69,8 @@ struct abstract_response
     virtual std::string get_response_code() const = 0;
 
     metadata_t metadata;
-    std::string body;
+    char* data;
+    size_t data_size;
 };
 }
 

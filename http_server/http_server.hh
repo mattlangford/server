@@ -10,8 +10,7 @@
 
 #include "tcp_server/tcp_server.hh"
 #include "http_server/messages.hh"
-#include "http_server/resources.hh"
-
+#include "resources/abstract_resource.hh"
 
 class http_server
 {
@@ -38,13 +37,7 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     /// Add a new resource to the server, this can be fetched on request
     ///
-    void add_resource(http_resource::ptr resource);
-
-    template <typename... Args>
-    inline void add_resource(Args...args)
-    {
-        add_resource(std::make_shared<http_resource>(std::move(args...)));
-    }
+    void add_resource(resources::abstract_resource::ptr resource);
 
     ///
     /// Add a new handler for PUT requests, don't block in the handler!
@@ -55,7 +48,7 @@ private: //////////////////////////////////////////////////////////////////////
     ///
     /// Get the resource at the url, this could return null
     ///
-    const http_resource::ptr fetch_resource(const std::string& url) const;
+    const resources::abstract_resource::ptr fetch_resource(const std::string& url) const;
 
     ///
     /// Callback used when new data on the socket arrives
@@ -82,7 +75,7 @@ private: //////////////////////////////////////////////////////////////////////
     /// Maps between url and resources, the shared pointer can be passed around
     ///
     mutable std::mutex resource_lock;
-    std::unordered_map<std::string, http_resource::ptr> resources;
+    std::unordered_map<std::string, resources::abstract_resource::ptr> resources;
 
     ///
     /// Callbacks to trigger on a new PUT request
