@@ -1,17 +1,38 @@
+<!DOCTYPE html>
 <html>
 <body>
 
-<h2>JavaScript in Body</h2>
-
-<p id="demo">A Paragraph.</p>
-
-<button type="button" onclick="myFunction()">Try it</button>
+<div id="demo">
+    <button type='button' onclick='loadDoc()'>Reload</button>
+</div>
 
 <script>
-function myFunction() {
-    document.getElementById("demo").innerHTML = "Paragraph changed.";
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function()
+  {
+      if (this.readyState == 4 && this.status == 200)
+      {
+          var response = JSON.parse(this.responseText);
+
+          var new_data = "";
+          for (light in response.lights)
+          {
+              new_data += response.lights[light];
+              new_data += "<hr>";
+          }
+
+          new_data += "<button type='button' onclick='loadDoc()'>Reload</button>"
+
+          document.getElementById("demo").innerHTML = new_data;
+      }
+  };
+
+  xhttp.open("GET", "test.json", true);
+  xhttp.send();
 }
 </script>
 
 </body>
-</html> 
+</html>
+

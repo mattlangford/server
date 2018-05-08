@@ -25,6 +25,7 @@ int main()
     http_server server(8080);
 
     server.add_resource(load_file_resource("/index.html"));
+    server.add_resource(load_file_resource("/test.json"));
 
     server.start_server();
 
