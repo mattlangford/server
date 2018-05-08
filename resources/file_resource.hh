@@ -9,6 +9,17 @@ class file_resource : public abstract_resource
 {
 public: ///////////////////////////////////////////////////////////////////////
     ///
+    /// Holds file data, let's us know if the file has been modified since the last time we accessed it
+    ///
+    struct file_holder
+    {
+        time_t last_modified;
+        size_t size;
+        char* data;
+    };
+
+public: ///////////////////////////////////////////////////////////////////////
+    ///
     /// Load the file at the provided base + path, use the path as a URI. This will also
     /// attempt to infer the resource type.
     ///
@@ -39,23 +50,35 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     ///
     ///
-    inline data_buffer get_resource() override
-    {
-        return {data, data_size};
-    }
+    data_buffer get_resource() override;
 
 private: //////////////////////////////////////////////////////////////////////
     ///
+    /// Get the time when this file was last modified
+    ///
+    time_t get_last_modified_time();
+
+    ///
+    /// Get the size of the file we're interested in
+    ///
+    size_t get_file_size();
+
+    ///
     /// Memory map the file so we don't have to copy it here
     ///
-    void load_file(const std::string& file_path);
+    void load_file();
 
     ///
     /// Throw an error using the error number (converted to a string)
     ///
-    static void throw_errno(const std::string& message);
+    void throw_errno(const std::string& message);
 
 private: //////////////////////////////////////////////////////////////////////
+    ///
+    ///
+    ///
+    const std::string full_path;
+
     ///
     /// Store the resource identifier (which will be the path passed into the constructor)
     /// with a / at the start
@@ -69,10 +92,8 @@ private: //////////////////////////////////////////////////////////////////////
     std::string inferred_resource_type;
 
     ///
-    /// Store pointer to file and how big it is
-    /// NOTE: we're assuming no one will be mucking with our file while we're running
+    /// Holds data about the file
     ///
-    char* data;
-    size_t data_size;
+    file_holder file;
 };
 }
