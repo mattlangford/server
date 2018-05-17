@@ -1,7 +1,7 @@
 git_repository(
     name = "variant",
     remote = "https://github.com/mattlangford/variant.git",
-    commit = "4591a834244a51a728bff95b4702dfa643c03224"
+    commit = "87ccc6c46ad6f88efe985ca7b409f7e675685397"
 )
 
 # local_repository(
