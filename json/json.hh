@@ -19,6 +19,8 @@ public:
 
     json(const json& j) = default;
 
+    json& operator=(const json& j) = default;
+
     ~json() = default;
 
 public: //////////////////////////////////////////////////////////////////////

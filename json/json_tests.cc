@@ -10,14 +10,20 @@ void test_json_build()
 {
     json::json j;
 
-    std::cout << "setting map\n";
     j.set_map();
-    std::cout << "map set\n";
 
     j["test"] = std::string("test_string");
-    j["test1"] = std::string("another_string");
 
-    std::cout << "printing as string\n";
+    json::json::vector_type v;
+    v.resize(3);
+
+    v[0] = std::string("test1");
+    v[1] = std::string("test2");
+    v[2].set_map();
+    auto& map = v[2];
+    map["another_layer"] = 234.23;
+    j["test1"] = v;
+
     std::cout << j.get_value_as_string() << "\n";
 }
 

@@ -38,11 +38,18 @@ struct string_extractor_visitor
 
     void operator()(const json::json::map_type& value, std::string& building)
     {
+        size_t elements_left = value.size();
+
         building += "{";
         for (const auto& element : value)
         {
             building += "\"" + element.first + "\": ";
             building += element.second.get_value_as_string();
+
+            if (elements_left-- > 1)
+            {
+                building += ", ";
+            }
         }
         building += "}";
     }
@@ -53,10 +60,17 @@ struct string_extractor_visitor
 
     void operator()(const json::json::vector_type& value, std::string& building)
     {
+        size_t elements_left = value.size();
+
         building += "[";
         for (const auto& element : value)
         {
-            building += element.get_value_as_string() + ", ";
+            building += element.get_value_as_string();
+
+            if (elements_left-- > 1)
+            {
+                building += ", ";
+            }
         }
         building += "]";
     }
