@@ -52,6 +52,11 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     inline json& operator[](const std::string& key) { return holder.get<map_type>()[key]; }
     inline json& operator[](const size_t index) { return holder.get<vector_type>()[index]; }
+    inline const json& operator[](const std::string& key) const { return holder.get<map_type>().at(key); }
+    inline const json& operator[](const size_t index) const { return holder.get<vector_type>().at(index); }
+
+    template <typename T>
+    inline const T& get() const { return holder.get<T>(); }
 
     ///
     ///
