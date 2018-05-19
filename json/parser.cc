@@ -197,7 +197,7 @@ double parse_bool(const std::string& input, size_t& index)
 // ############################################################################
 //
 
-json::map_type parse_map(const std::string& input, size_t& index)
+map_type parse_map(const std::string& input, size_t& index)
 {
     std::cout << "parsing map\n";
     constexpr char MAP_START_DELIMIETER = '{';
@@ -205,7 +205,7 @@ json::map_type parse_map(const std::string& input, size_t& index)
     if (input[index++] != MAP_START_DELIMIETER)
         throw std::runtime_error("Asked to parse map, but given index didn't look like a map.");
 
-    json::map_type map;
+    map_type map;
     while (input[index] != MAP_END_DELIMIETER)
     {
         const std::string key = parse_string(input, index);
@@ -230,7 +230,7 @@ json::map_type parse_map(const std::string& input, size_t& index)
 // ############################################################################
 //
 
-json::vector_type parse_vector(const std::string& input, size_t& index)
+vector_type parse_vector(const std::string& input, size_t& index)
 {
     std::cout << "parsing vector\n";
     constexpr char VEC_START_DELIMIETER = '[';
@@ -238,7 +238,7 @@ json::vector_type parse_vector(const std::string& input, size_t& index)
     if (input[index++] != VEC_START_DELIMIETER)
         throw std::runtime_error("Asked to parse vector, but given index didn't look like a vector.");
 
-    json::vector_type vec;
+    vector_type vec;
     while (input[index] != VEC_END_DELIMIETER)
     {
         std::cout << input[index] << " size: " << vec.size() << "\n";

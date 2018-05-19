@@ -45,8 +45,8 @@ token_hint guess_token(const std::string& s, size_t index);
 std::string parse_string(const std::string& input, size_t& index);
 double parse_double(const std::string& input, size_t& index);
 double parse_bool(const std::string& input, size_t& index);
-json::map_type parse_map(const std::string& input, size_t& index);
-json::vector_type parse_vector(const std::string& input, size_t& index);
+map_type parse_map(const std::string& input, size_t& index);
+vector_type parse_vector(const std::string& input, size_t& index);
 
 }
 }

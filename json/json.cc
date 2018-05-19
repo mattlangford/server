@@ -36,7 +36,7 @@ struct string_extractor_visitor
     // ############################################################################
     //
 
-    void operator()(const json::json::map_type& value, std::string& building)
+    void operator()(const json::map_type& value, std::string& building)
     {
         size_t elements_left = value.size();
 
@@ -58,7 +58,7 @@ struct string_extractor_visitor
     // ############################################################################
     //
 
-    void operator()(const json::json::vector_type& value, std::string& building)
+    void operator()(const json::vector_type& value, std::string& building)
     {
         size_t elements_left = value.size();
 

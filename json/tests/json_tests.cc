@@ -14,7 +14,7 @@ void test_json_build()
 
     j["test"] = std::string("test_string");
 
-    json::json::vector_type v;
+    json::vector_type v;
     v.resize(3);
 
     v[0] = std::string("test1");

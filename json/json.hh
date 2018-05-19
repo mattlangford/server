@@ -17,12 +17,13 @@ public: \
 namespace json
 {
 
+class json;
+using map_type = std::map<std::string, json>;
+using vector_type = std::vector<json>;
+
 class json
 {
 public: //////////////////////////////////////////////////////////////////////
-    using map_type = std::map<std::string, json>;
-    using vector_type = std::vector<json>;
-
     using json_holder = variant<std::string,
                                 double,
                                 bool,

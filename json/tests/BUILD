@@ -13,5 +13,5 @@ cc_test(
 cc_test(
     name = "json_tests",
     srcs = ["json_tests.cc"],
-    deps = [":json"]
+    deps = ["//json:json"]
 )
