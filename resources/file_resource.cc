@@ -33,7 +33,7 @@ file_resource::file_resource(const std::string& base, const std::string& path)
 // ############################################################################
 //
 
-data_buffer file_resource::get_resource()
+std::string file_resource::get_resource()
 {
     //
     // We're going to do a quick check to see if the file has changed size
@@ -43,7 +43,7 @@ data_buffer file_resource::get_resource()
         load_file();
     }
 
-    return {file.data, file.size};
+    return std::string(file.data, file.data + file.size);
 }
 
 //
@@ -67,9 +67,6 @@ time_t file_resource::get_last_modified_time()
 
 size_t file_resource::get_file_size()
 {
-    //
-    // Figure out how much data we're loading
-    //
     struct stat statbuf;
     if (stat(full_path.c_str(), &statbuf) < 0)
     {

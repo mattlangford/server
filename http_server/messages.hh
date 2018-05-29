@@ -1,7 +1,7 @@
 #pragma once
-#include <chrono>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "tcp_server/tcp_server.hh"
 
@@ -69,8 +69,7 @@ struct abstract_response
     virtual std::string get_response_code() const = 0;
 
     metadata_t metadata;
-    char* data;
-    size_t data_size;
+    std::string data;
 };
 }
 

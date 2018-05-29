@@ -2,16 +2,9 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace resources
 {
-
-struct data_buffer
-{
-    char* data;
-    size_t data_size;
-};
 
 struct abstract_resource
 {
@@ -26,10 +19,10 @@ struct abstract_resource
     virtual const std::string& get_resource_type() const = 0;
 
     ///
-    /// Get a pointer to some data that represents this resource, this will be sent as a
-    /// string. This function may modify data, like if fetch the resource
+    /// Fetch a string to send out in the response to the GET message. This function may
+    /// modify data, like it can fetch the resource if needed
     ///
-    virtual data_buffer get_resource() = 0;
+    virtual std::string get_resource() = 0;
 
     ///
     /// Convenience typedef

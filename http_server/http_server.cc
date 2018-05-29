@@ -127,12 +127,11 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
 
     responses::OK response;
 
-    const resources::data_buffer buf = resource->get_resource();
-    response.data = buf.data;
+    response.data = resource->get_resource();
 
     response.metadata["Connection"] = "close";
     response.metadata["Content-Type"] = resource->get_resource_type();
-    response.metadata["Content-Length"] = std::to_string(buf.data_size);
+    response.metadata["Content-Length"] = response.data.size();
 
     LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));
