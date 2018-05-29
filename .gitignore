@@ -2,3 +2,4 @@
 *.swo
 bazel*
 *.un~
+.gdb_history
