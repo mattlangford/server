@@ -12,3 +12,11 @@ cc_library(
     visibility = ["//visibility:public"]
 )
 
+cc_library(
+    name = "json_resource",
+    hdrs = ["json_resource.hh"],
+    deps = ["//json:json",
+            ":abstract_resource"],
+    visibility = ["//visibility:public"]
+)
+
