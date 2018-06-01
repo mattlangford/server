@@ -1,3 +1,4 @@
+#pragma once
 #include "resources/abstract_resource.hh"
 #include "json/json.hh"
 
@@ -26,11 +27,15 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     ///
     ///
-    inline const std::string& get_resource_type() override const { return "text/json"; }
+    inline const std::string& get_resource_type() const override
+    {
+        static std::string resource_type {"text/json"};
+        return resource_type;
+    }
 
     ///
     ///
     ///
     inline std::string get_resource() override { return get_json_resource().get_value_as_string(); }
-}
+};
 }
