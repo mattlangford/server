@@ -16,12 +16,6 @@ class http_server
 {
 public: ///////////////////////////////////////////////////////////////////////
     ///
-    /// Function to handle PUT requests, may change in the future
-    ///
-    typedef std::function<void(const std::string&)> PUT_handler;
-
-public: ///////////////////////////////////////////////////////////////////////
-    ///
     /// Construct with a port, 80 is the default but may require sudo
     ///
     http_server(const uint16_t port = 80);
@@ -38,12 +32,6 @@ public: ///////////////////////////////////////////////////////////////////////
     /// Add a new resource to the server, this can be fetched on request
     ///
     void add_resource(resources::abstract_resource::ptr resource);
-
-    ///
-    /// Add a new handler for PUT requests, don't block in the handler!
-    ///
-    void install_PUT_handler(PUT_handler&& handler);
-
 private: //////////////////////////////////////////////////////////////////////
     ///
     /// Get the resource at the url, this could return null
@@ -61,9 +49,9 @@ private: //////////////////////////////////////////////////////////////////////
     void handle_GET_request(const server::socket_handle& response_fd, requests::GET request);
 
     ///
-    /// Callback to handle PUT requests specifically, this will trigger callbacks
+    /// Callback to handle POST requests specifically, this will trigger callbacks
     ///
-    void handle_PUT_request();
+    void handle_POST_request(const server::socket_handle& response_fd, requests::POST request);
 
 private: //////////////////////////////////////////////////////////////////////
     ///
@@ -76,12 +64,6 @@ private: //////////////////////////////////////////////////////////////////////
     ///
     mutable std::mutex resource_lock;
     std::unordered_map<std::string, resources::abstract_resource::ptr> resources;
-
-    ///
-    /// Callbacks to trigger on a new PUT request
-    ///
-    mutable std::mutex handler_lock;
-    std::vector<PUT_handler> PUT_handlers;
 
     ///
     /// Thread handle for the server thread, with a shutdown bool

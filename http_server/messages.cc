@@ -34,6 +34,30 @@ std::pair<std::string, std::string> parse_metadata_line(const std::string& data)
 // ############################################################################
 //
 
+general_header general_header::from_string(const std::string& data)
+{
+    general_header result;
+
+    const size_t first_space = data.find(' ');
+    const size_t last_space = data.rfind(' ');
+
+    if (first_space == last_space || first_space == std::string::npos)
+    {
+        throw std::runtime_error("Unable to parse header from string!");
+    }
+
+    result.type = data.substr(0, first_space);
+    const size_t url_length = last_space - first_space - 1;
+    result.url = data.substr(first_space + 1, url_length);
+    result.http_version = data.substr(last_space + 1);
+
+    return result;
+}
+
+//
+// ############################################################################
+//
+
 general_message general_message::from_string(const std::string& data)
 {
     general_message result;
@@ -43,7 +67,8 @@ general_message general_message::from_string(const std::string& data)
     //
     constexpr size_t start_of_header = 0;
     const size_t end_of_header = data.find(NEWLINE);
-    result.header = data.substr(start_of_header, end_of_header - start_of_header);
+    std::cout << data.substr(start_of_header, end_of_header - start_of_header) << "\n";
+    result.header = general_header::from_string(data.substr(start_of_header, end_of_header - start_of_header));
 
     //
     // Now parse the arbitrary number of arguments
@@ -90,30 +115,13 @@ GET GET::from_general_message(general_message message)
     // Make sure this is a GET request
     //
     constexpr auto GET_id = "GET";
-    constexpr size_t GET_id_len = 3;
-    if (message.header.substr(0, GET_id_len) != GET_id)
+    if (message.header.type != GET_id)
     {
-        std::stringstream ss;
         throw std::runtime_error("Trying to parse a non GET request.");
     }
 
     GET result;
-
-    //
-    // The url should be right after the start, grab that and the HTTP version
-    //
-    const size_t front_space = message.header.find(' ');
-    const size_t end_space = message.header.rfind(' ');
-    if (front_space == end_space)
-    {
-        throw std::runtime_error("Unable to parse header! Needs at least two spaces.");
-    }
-
-    constexpr size_t SPACE_WIDTH = 1;
-    const size_t url_length = end_space - front_space - SPACE_WIDTH;
-    result.url = message.header.substr(front_space + SPACE_WIDTH, url_length);
-    result.http_version = message.header.substr(end_space + SPACE_WIDTH);
-
+    result.url = std::move(message.header.url);
     result.metadata = std::move(message.metadata);
 
     //
@@ -127,6 +135,30 @@ GET GET::from_general_message(general_message message)
 
     return result;
 }
+
+//
+// ############################################################################
+//
+
+// TODO: This is like exactly the same as the GET parsing...
+POST POST::from_general_message(general_message message)
+{
+    //
+    // Make sure this is a POST request
+    //
+    constexpr auto POST_id = "POST";
+    if (message.header.type != POST_id)
+    {
+        throw std::runtime_error("Trying to parse a non POST request.");
+    }
+
+    POST result;
+    result.url = std::move(message.header.url);
+    result.metadata = std::move(message.metadata);
+    result.post_data = std::move(message.body);
+
+    return result;
+}
 }
 
 //
@@ -136,7 +168,7 @@ GET GET::from_general_message(general_message message)
 namespace responses
 {
 
-std::string generate_response(const detail::abstract_response& response)
+std::string generate_response(const abstract_response& response)
 {
     constexpr auto NEWLINE = "\r\n";
     constexpr auto HTTP_VERSION = "HTTP/1.0";

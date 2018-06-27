@@ -70,16 +70,6 @@ const resources::abstract_resource::ptr http_server::fetch_resource(const std::s
 // ############################################################################
 //
 
-void http_server::install_PUT_handler(PUT_handler&& handler)
-{
-    std::lock_guard<std::mutex> lock(handler_lock);
-    PUT_handlers.emplace_back(std::move(handler));
-}
-
-//
-// ############################################################################
-//
-
 void http_server::handle_generic_request(const server::socket_handle& response_fd, std::string data)
 {
     general_message parsed_message = general_message::from_string(data);
@@ -89,14 +79,13 @@ void http_server::handle_generic_request(const server::socket_handle& response_f
     //
     try
     {
-        const std::string message_type = data.substr(0, 3);
-        if (message_type == "GET")
+        if (parsed_message.header.type == "GET")
         {
             handle_GET_request(response_fd, requests::GET::from_general_message(std::move(parsed_message)));
         }
-        else if(message_type == "PUT")
+        else if (parsed_message.header.type == "POST")
         {
-            //handle_PUT_request();
+            handle_POST_request(response_fd, requests::POST::from_general_message(std::move(parsed_message)));
         }
         else
         {
@@ -106,7 +95,7 @@ void http_server::handle_generic_request(const server::socket_handle& response_f
     catch (const std::runtime_error& err)
     {
         LOG_ERROR("Exception caught in request handler: " << err.what()
-            << "\nHeader: " << parsed_message.header);
+            << "\nHeader: " << parsed_message.header.type);
     }
 }
 
@@ -136,4 +125,42 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
     LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));
     server.close(response_fd);
+}
+
+//
+// ############################################################################
+//
+
+void http_server::handle_POST_request(const server::socket_handle& response_fd, requests::POST request)
+{
+    resources::abstract_resource::ptr resource = fetch_resource(request.url);
+    if (resource == nullptr)
+    {
+        responses::NOT_FOUND response;
+        LOG_DEBUG(response.get_response_code());
+        server.write(response_fd, responses::generate_response(response));
+        return;
+    }
+
+    responses::abstract_response* response;
+
+    if (resource->handle_post_request(std::move(request)))
+    {
+        response = new responses::OK;
+    }
+    else
+    {
+        LOG_ERROR("Post request failed!");
+        response = new responses::NOT_ALLOWED;
+    }
+
+    response->metadata["Connection"] = "close";
+    response->metadata["Content-Type"] = resource->get_resource_type();
+    response->metadata["Content-Length"] = response->data.size();
+
+    LOG_DEBUG(response->get_response_code());
+    server.write(response_fd, responses::generate_response(*response));
+    server.close(response_fd);
+
+    delete response;
 }

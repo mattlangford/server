@@ -1,5 +1,7 @@
 #pragma once
 
+#include "http_server/messages.hh"
+
 #include <memory>
 #include <string>
 
@@ -23,6 +25,12 @@ struct abstract_resource
     /// modify data, like it can fetch the resource if needed
     ///
     virtual std::string get_resource() = 0;
+
+    ///
+    /// Accept a new POST request, return if it was successful.
+    /// Not all resources need to implement this
+    ///
+    virtual bool handle_post_request(requests::POST post_request) { return false; }
 
     ///
     /// Convenience typedef

@@ -2,7 +2,8 @@ cc_library(
     name = "messages",
     srcs = ["messages.cc"],
     hdrs = ["messages.hh"],
-    deps = ["//tcp_server:tcp_server"]
+    deps = ["//tcp_server:tcp_server"],
+    visibility = ["//visibility:public"]
 )
 
 cc_library(

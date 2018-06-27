@@ -1,6 +1,7 @@
 cc_library(
     name = "abstract_resource",
     hdrs = ["abstract_resource.hh"],
+    deps = ["//http_server:messages"],
     visibility = ["//visibility:public"]
 )
 
