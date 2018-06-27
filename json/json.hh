@@ -59,6 +59,9 @@ public: ///////////////////////////////////////////////////////////////////////
     template <typename T>
     inline const T& get() const { return holder.get<T>(); }
 
+    template <typename T>
+    inline bool has_type() const { return holder.has_type<T>(); }
+
     ///
     ///
     ///

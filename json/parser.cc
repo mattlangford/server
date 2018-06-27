@@ -7,7 +7,6 @@ json parse(const std::string& input)
 {
     size_t index = 0;
     std::string stripped = detail::strip_whitespace(input);
-    std::cout << "parsing stripped string: " << stripped << "\n";
     return detail::parse_impl(std::move(stripped), index);
 }
 
@@ -128,7 +127,6 @@ token_hint guess_token(const std::string& s, size_t index)
 
 std::string parse_string(const std::string& input, size_t& index)
 {
-    std::cout << "parsing string\n";
     constexpr char STRING_DELIMETER = '"';
     if (input[index++] != STRING_DELIMETER)
         throw std::runtime_error("Tried to parse a string, but the it didn't look like a string");
@@ -148,7 +146,6 @@ std::string parse_string(const std::string& input, size_t& index)
 
 double parse_double(const std::string& input, size_t& index)
 {
-    std::cout << "parsing double\n";
     const size_t start_index = index;
 
     size_t size = 0;
@@ -165,7 +162,6 @@ double parse_double(const std::string& input, size_t& index)
     }
 
     double result = std::stod(input.substr(start_index, index));
-    std::cout << " - " << result << "\n";
     return result;
 }
 
@@ -175,18 +171,15 @@ double parse_double(const std::string& input, size_t& index)
 
 double parse_bool(const std::string& input, size_t& index)
 {
-    std::cout << "parsing bool\n";
     if (input.compare(index, 4, "true") == 0)
     {
         index += 4;
-        std::cout << " - true\n";
         return 1.0;
     }
 
     if (input.compare(index, 5, "false") == 0)
     {
         index += 5;
-        std::cout << " - false\n";
         return 0.0;
     }
 
@@ -199,7 +192,6 @@ double parse_bool(const std::string& input, size_t& index)
 
 map_type parse_map(const std::string& input, size_t& index)
 {
-    std::cout << "parsing map\n";
     constexpr char MAP_START_DELIMIETER = '{';
     constexpr char MAP_END_DELIMIETER = '}';
     if (input[index++] != MAP_START_DELIMIETER)
@@ -209,7 +201,6 @@ map_type parse_map(const std::string& input, size_t& index)
     while (input[index] != MAP_END_DELIMIETER)
     {
         const std::string key = parse_string(input, index);
-        std::cout << "Key is: '" << key << "'\n";
 
         constexpr char KEY_VALUE_SEPERATOR = ':';
         if (input[index++] != KEY_VALUE_SEPERATOR)
@@ -232,7 +223,6 @@ map_type parse_map(const std::string& input, size_t& index)
 
 vector_type parse_vector(const std::string& input, size_t& index)
 {
-    std::cout << "parsing vector\n";
     constexpr char VEC_START_DELIMIETER = '[';
     constexpr char VEC_END_DELIMIETER = ']';
     if (input[index++] != VEC_START_DELIMIETER)
@@ -241,9 +231,7 @@ vector_type parse_vector(const std::string& input, size_t& index)
     vector_type vec;
     while (input[index] != VEC_END_DELIMIETER)
     {
-        std::cout << input[index] << " size: " << vec.size() << "\n";
         vec.emplace_back(parse_impl(input, index));
-        std::cout << input[index] << " size: " << vec.size() << "\n";
 
         constexpr char COMMA_SEPERATOR = ',';
         if (input[index] == COMMA_SEPERATOR)
