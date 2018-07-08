@@ -94,8 +94,7 @@ void http_server::handle_generic_request(const server::socket_handle& response_f
     }
     catch (const std::runtime_error& err)
     {
-        LOG_ERROR("Exception caught in request handler: " << err.what()
-            << "\nHeader: " << parsed_message.header.type);
+        LOG_ERROR("Exception caught in request handler: " << err.what());
     }
 }
 
@@ -120,7 +119,7 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
 
     response.metadata["Connection"] = "close";
     response.metadata["Content-Type"] = resource->get_resource_type();
-    response.metadata["Content-Length"] = response.data.size();
+    response.metadata["Content-Length"] = std::to_string(response.data.size());
 
     LOG_DEBUG(response.get_response_code());
     server.write(response_fd, responses::generate_response(response));
