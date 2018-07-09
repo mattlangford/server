@@ -1,4 +1,5 @@
 #include "http_server/messages.hh"
+#include "logging.hh"
 
 #include <sstream>
 #include <iostream>
@@ -67,7 +68,7 @@ general_message general_message::from_string(const std::string& data)
     //
     constexpr size_t start_of_header = 0;
     const size_t end_of_header = data.find(NEWLINE);
-    std::cout << data.substr(start_of_header, end_of_header - start_of_header) << "\n";
+    LOG_DEBUG(data.substr(start_of_header, end_of_header - start_of_header));
     result.header = general_header::from_string(data.substr(start_of_header, end_of_header - start_of_header));
 
     //
