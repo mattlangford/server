@@ -141,25 +141,34 @@ void http_server::handle_POST_request(const server::socket_handle& response_fd, 
         return;
     }
 
-    responses::abstract_response* response;
+    const auto send_response = [&](responses::abstract_response&& response){
+        response.metadata["Connection"] = "close";
+        response.metadata["Content-Type"] = resource->get_resource_type();
+        response.metadata["Content-Length"] = response.data.size();
 
-    if (resource->handle_post_request(std::move(request)))
+        LOG_DEBUG(response.get_response_code());
+        server.write(response_fd, responses::generate_response(response));
+        server.close(response_fd);
+    };
+
+    try
     {
-        response = new responses::OK;
+        //
+        // This may throw if the POST handler fails to do something right
+        //
+        if (resource->handle_post_request(std::move(request)))
+        {
+            send_response(responses::OK{});
+        }
+        else
+        {
+            LOG_ERROR("Post request failed for an unspecified reason!");
+            send_response(responses::NOT_ALLOWED{});
+        }
     }
-    else
+    catch (const std::exception& e)
     {
-        LOG_ERROR("Post request failed!");
-        response = new responses::NOT_ALLOWED;
+        LOG_ERROR("Post request failed! Exception: " << e.what());
+        send_response(responses::NOT_ALLOWED{});
     }
-
-    response->metadata["Connection"] = "close";
-    response->metadata["Content-Type"] = resource->get_resource_type();
-    response->metadata["Content-Length"] = response->data.size();
-
-    LOG_DEBUG(response->get_response_code());
-    server.write(response_fd, responses::generate_response(*response));
-    server.close(response_fd);
-
-    delete response;
 }
