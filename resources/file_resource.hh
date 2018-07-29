@@ -34,7 +34,7 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     ///
     ///
-    inline virtual const std::string& get_resource_identifier() const
+    inline const std::string& get_resource_identifier() const override
     {
         return resource_identifier;
     }
@@ -42,7 +42,7 @@ public: ///////////////////////////////////////////////////////////////////////
     ///
     ///
     ///
-    inline virtual const std::string& get_resource_type() const
+    inline const std::string& get_resource_type() const override
     {
         return inferred_resource_type;
     }

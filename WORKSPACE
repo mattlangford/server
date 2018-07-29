@@ -1,10 +1,5 @@
 git_repository(
     name = "variant",
     remote = "https://github.com/mattlangford/variant.git",
-    commit = "a88daadb9c45b7304bcb4f4d422e669e83ce387e"
+    commit = "d877154a2954230004d5b91c640372818c6efb5a"
 )
-
-# local_repository(
-#     name = "variant",
-#     path = "/home/matt/Documents/variant/",
-# )

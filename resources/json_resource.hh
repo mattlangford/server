@@ -15,11 +15,6 @@ public: ///////////////////////////////////////////////////////////////////////
 
 public: ///////////////////////////////////////////////////////////////////////
     ///
-    ///
-    ///
-    inline virtual const std::string& get_resource_identifier() const = 0;
-
-    ///
     /// Get a json object from the resource, this will be converted to a string and passed along
     ///
     virtual json::json get_json_resource() = 0;
