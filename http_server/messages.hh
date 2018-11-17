@@ -71,8 +71,6 @@ struct POST
 
     metadata_t metadata;
 
-    std::string post_data;
-
     ///
     /// Parse a PUT request from a general message and a tcp message
     ///
@@ -81,7 +79,7 @@ struct POST
     ///
     /// Handle to the message in case we need to parse more, or for when we have to respond
     ///
-    server::tcp_message tcp_connetion;
+    server::tcp_message tcp_connection;
 };
 }
 

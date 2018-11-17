@@ -176,7 +176,6 @@ GET GET::from_general_message(general_message message)
 // TODO: This is like exactly the same as the GET parsing...
 POST POST::from_general_message(general_message message, server::tcp_message tcp_message)
 {
-    /*
     //
     // Make sure this is a POST request
     //
@@ -189,11 +188,9 @@ POST POST::from_general_message(general_message message, server::tcp_message tcp
     POST result;
     result.url = std::move(message.header.url);
     result.metadata = std::move(message.metadata);
-    result.post_data = std::move(message.body);
+    result.tcp_connection = std::move(message.tcp_connection);
 
     return result;
-    */
-    return {};
 }
 }
 

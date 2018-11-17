@@ -129,43 +129,44 @@ void http_server::handle_GET_request(requests::GET request)
 
 void http_server::handle_POST_request(requests::POST request)
 {
-    // resources::abstract_resource::ptr resource = fetch_resource(request.url);
-    // if (resource == nullptr)
-    // {
-    //     responses::NOT_FOUND response;
-    //     LOG_DEBUG(response.get_response_code());
-    //     server.write(response_fd, responses::generate_response(response));
-    //     return;
-    // }
+    resources::abstract_resource::ptr resource = fetch_resource(request.url);
+    if (resource == nullptr)
+    {
+        responses::NOT_FOUND response;
+        LOG_DEBUG(response.get_response_code());
+        request.tcp_connection.write_to_socket(responses::generate_response(response));
+        request.tcp_connection.close_socket();
+        return;
+    }
 
-    // const auto send_response = [&](responses::abstract_response&& response){
-    //     response.metadata["Connection"] = "close";
-    //     response.metadata["Content-Type"] = resource->get_resource_type();
-    //     response.metadata["Content-Length"] = response.data.size();
+    const auto send_response = [&](responses::abstract_response&& response){
+        response.metadata["Connection"] = "close";
+        response.metadata["Content-Type"] = resource->get_resource_type();
+        response.metadata["Content-Length"] = response.data.size();
 
-    //     LOG_DEBUG(response.get_response_code());
-    //     server.write(response_fd, responses::generate_response(response));
-    //     server.close(response_fd);
-    // };
+        LOG_DEBUG(response.get_response_code());
+        request.tcp_connection.write_to_socket(responses::generate_response(response));
+        request.tcp_connection.close_socket();
+    };
 
-    // try
-    // {
-    //     //
-    //     // This may throw if the POST handler fails to do something right
-    //     //
-    //     if (resource->handle_post_request(std::move(request)))
-    //     {
-    //         send_response(responses::OK{});
-    //     }
-    //     else
-    //     {
-    //         LOG_ERROR("Post request failed for an unspecified reason!");
-    //         send_response(responses::NOT_ALLOWED{});
-    //     }
-    // }
-    // catch (const std::exception& e)
-    // {
-    //     LOG_ERROR("Post request failed! Exception: " << e.what());
-    //     send_response(responses::NOT_ALLOWED{});
-    // }
+    try
+    {
+        //
+        // This may throw if the POST handler fails to do something right
+        //
+        if (resource->handle_post_request(std::move(request)))
+        {
+            send_response(responses::OK{});
+        }
+        else
+        {
+            LOG_ERROR("Post request failed for an unspecified reason!");
+            send_response(responses::NOT_ALLOWED{});
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("Post request failed! Exception: " << e.what());
+        send_response(responses::NOT_ALLOWED{});
+    }
 }
