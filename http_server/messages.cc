@@ -46,23 +46,17 @@ std::string find_in_message(std::string to_find, server::tcp_message& message)
 
     while (true) // TODO timeout
     {
-        //
-        // Reserve space for the string we're looking for. Grab a pointer to where that data is going to live
-        //
-        const size_t prev_position = read_data.size();
-        read_data.resize(read_data.size() + to_find.size());
-        uint8_t* data_start = reinterpret_cast<uint8_t*>(&read_data[0]);
-        uint8_t* message_dest = data_start + prev_position;
+        read_data.resize(read_data.size() + 1);
+        uint8_t* message_dest = reinterpret_cast<uint8_t*>(&read_data.back());
 
-        //
-        // Perform the read, this will be quick if the data is there, but may require reading from the socket
-        //
-        message.read_into(message_dest, to_find.size());
+        message.read_into(message_dest, 1);
+        if (read_data.size() < to_find.size())
+            continue;
 
         //
         // Did we find the substring we're looking for? If so, break out
         //
-        if (std::memcmp(message_dest, to_find.data(), to_find.size()) == 0)
+        if (std::memcmp(message_dest - (to_find.size() - 1), to_find.data(), to_find.size()) == 0)
         {
             break;
         }
@@ -79,7 +73,6 @@ std::string find_in_message(std::string to_find, server::tcp_message& message)
 
 general_header general_header::from_string(std::string data)
 {
-    LOG_DEBUG("got string: " << data);
     general_header result;
 
     const size_t first_space = data.find(' ');
@@ -174,7 +167,7 @@ GET GET::from_general_message(general_message message)
 //
 
 // TODO: This is like exactly the same as the GET parsing...
-POST POST::from_general_message(general_message message, server::tcp_message tcp_message)
+POST POST::from_general_message(general_message message)
 {
     //
     // Make sure this is a POST request

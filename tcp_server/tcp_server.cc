@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "tcp_server/tcp_server.hh"
+#include "logging.hh"
 
 namespace server
 {
@@ -31,7 +32,10 @@ tcp_server::tcp_server()
 
     // this allows us to reconnect immediately if we close out (rather than wait for the socket to reset)
     constexpr int optval = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(optval));
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(optval)) < 0)
+    {
+        throw_errno("Unable to set socket operations!");
+    }
 }
 
 //

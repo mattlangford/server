@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 #define LOG_DEBUG(message) \
     std::cout << "[ DEBUG ] (" << __FILE__ << ":" << __LINE__ << "): " << message << "\n";

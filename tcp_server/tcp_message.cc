@@ -1,4 +1,5 @@
 #include "tcp_server/tcp_message.hh"
+#include "logging.hh"
 #include <unistd.h>
 #include <cstring>
 

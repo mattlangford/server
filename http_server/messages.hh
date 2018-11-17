@@ -74,7 +74,7 @@ struct POST
     ///
     /// Parse a PUT request from a general message and a tcp message
     ///
-    static POST from_general_message(general_message message, server::tcp_message);
+    static POST from_general_message(general_message message);
 
     ///
     /// Handle to the message in case we need to parse more, or for when we have to respond

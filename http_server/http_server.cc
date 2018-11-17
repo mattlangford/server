@@ -81,7 +81,7 @@ void http_server::handle_generic_request(server::tcp_message message)
         }
         else if (parsed_message.header.type == "POST")
         {
-            //handle_POST_request(message);
+            handle_POST_request(requests::POST::from_general_message(std::move(parsed_message)));
         }
         else
         {

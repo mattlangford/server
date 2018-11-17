@@ -4,6 +4,7 @@ cc_library(
             "tcp_message.cc"],
     hdrs = ["tcp_server.hh",
             "tcp_message.hh"],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
+    deps = ["//:logging"]
 )
 
