@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sys/socket.h>
+#include "tcp_server/tcp_message.hh"
 
 #include <functional>
 #include <mutex>
@@ -35,7 +36,7 @@ public: ///////////////////////////////////////////////////////////////////////
     /// be forwarded to all the registered callbacks. Callbacks shouldn't be blocking, since they are
     /// run in the same thread as the listener.
     ///
-    using callback = std::function<void(const socket_handle& fd, const std::vector<uint8_t>&)>;
+    using callback = std::function<void(tcp_message)>;
     inline void register_callback(callback&& cb)
     {
         callbacks.emplace_back(std::move(cb));

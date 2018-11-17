@@ -1,9 +1,11 @@
 #include "http_server/messages.hh"
 #include "logging.hh"
 
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <vector>
+
 
 namespace
 {
@@ -29,14 +31,55 @@ std::pair<std::string, std::string> parse_metadata_line(const std::string& data)
 
     return std::make_pair(std::move(key), std::move(value));
 }
+
+//
+// ############################################################################
+//
+
+std::string find_in_message(std::string to_find, server::tcp_message& message)
+{
+    std::string read_data;
+    if (to_find.size() == 0)
+    {
+        return read_data;
+    }
+
+    while (true) // TODO timeout
+    {
+        //
+        // Reserve space for the string we're looking for. Grab a pointer to where that data is going to live
+        //
+        const size_t prev_position = read_data.size();
+        read_data.resize(read_data.size() + to_find.size());
+        uint8_t* data_start = reinterpret_cast<uint8_t*>(&read_data[0]);
+        uint8_t* message_dest = data_start + prev_position;
+
+        //
+        // Perform the read, this will be quick if the data is there, but may require reading from the socket
+        //
+        message.read_into(message_dest, to_find.size());
+
+        //
+        // Did we find the substring we're looking for? If so, break out
+        //
+        if (std::memcmp(message_dest, to_find.data(), to_find.size()) == 0)
+        {
+            break;
+        }
+    }
+
+    return read_data;
+}
+
 }
 
 //
 // ############################################################################
 //
 
-general_header general_header::from_string(const std::string& data)
+general_header general_header::from_string(std::string data)
 {
+    LOG_DEBUG("got string: " << data);
     general_header result;
 
     const size_t first_space = data.find(' ');
@@ -59,46 +102,34 @@ general_header general_header::from_string(const std::string& data)
 // ############################################################################
 //
 
-general_message general_message::from_string(const std::string& data)
+general_message general_message::from_message(server::tcp_message message)
 {
     general_message result;
 
     //
-    // Header is pretty easy, since it's in the same spot
+    // Parse out the header, it will be whatever is on the first line
     //
-    constexpr size_t start_of_header = 0;
-    const size_t end_of_header = data.find(NEWLINE);
-    LOG_DEBUG(data.substr(start_of_header, end_of_header - start_of_header));
-    result.header = general_header::from_string(data.substr(start_of_header, end_of_header - start_of_header));
+    result.header = general_header::from_string(find_in_message(NEWLINE, message));
 
     //
-    // Now parse the arbitrary number of arguments
+    // Now parse the arbitrary number of metadata arguments
     //
-    size_t start_of_metdata_line = end_of_header + NEWLINE_SIZE;
     while (true)
     {
+        const std::string this_line = find_in_message(NEWLINE, message);
+
         //
-        // Find the next metadata line and try to part it. If we reach two newlines in a row, that means
-        // we're done with metadata and should move onto the body
+        // No data on this line, we can break out since this was the end of the metadata
         //
-        const size_t end_of_metadata_line = data.find(NEWLINE, start_of_metdata_line);
-        if (end_of_metadata_line == start_of_metdata_line)
+        if (this_line.size() == NEWLINE_SIZE)
         {
             break;
         }
 
-        const size_t metadata_line_length = end_of_metadata_line - start_of_metdata_line;
-        const std::string metadata_line = data.substr(start_of_metdata_line, metadata_line_length);
-
-        result.metadata.emplace(parse_metadata_line(metadata_line));
-
-        start_of_metdata_line = end_of_metadata_line + NEWLINE_SIZE;
+        result.metadata.emplace(parse_metadata_line(this_line));
     }
 
-    //
-    // The rest is the body!
-    //
-    result.body = data.substr(start_of_metdata_line + NEWLINE_SIZE);
+    result.tcp_connection = std::move(message);
 
     return result;
 }
@@ -124,6 +155,7 @@ GET GET::from_general_message(general_message message)
     GET result;
     result.url = std::move(message.header.url);
     result.metadata = std::move(message.metadata);
+    result.tcp_connection = std::move(message.tcp_connection);
 
     //
     // A single slash like this means the client wants the homepage, so let's replace it here
@@ -142,8 +174,9 @@ GET GET::from_general_message(general_message message)
 //
 
 // TODO: This is like exactly the same as the GET parsing...
-POST POST::from_general_message(general_message message)
+POST POST::from_general_message(general_message message, server::tcp_message tcp_message)
 {
+    /*
     //
     // Make sure this is a POST request
     //
@@ -159,6 +192,8 @@ POST POST::from_general_message(general_message message)
     result.post_data = std::move(message.body);
 
     return result;
+    */
+    return {};
 }
 }
 

@@ -1,5 +1,6 @@
 #include "http_server/http_server.hh"
 #include "resources/file_resource.hh"
+#include "logging.hh"
 
 #include <iostream>
 #include <vector>

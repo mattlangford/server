@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "tcp_server/tcp_server.hh"
+#include "tcp_server/tcp_message.hh"
 
 typedef std::unordered_map<std::string, std::string> metadata_t;
 
@@ -14,9 +14,9 @@ struct general_header
     std::string http_version;
 
     ///
-    /// From a string parse out this type. The line should just be the first line of the response
+    /// Get a header from a string
     ///
-    static general_header from_string(const std::string& data);
+    static general_header from_string(std::string data);
 };
 
 ///
@@ -29,9 +29,14 @@ struct general_message
     std::string body;
 
     ///
-    /// Form a general message from a raw string
+    /// Form a general message from a tcp message
     ///
-    static general_message from_string(const std::string& data);
+    static general_message from_message(server::tcp_message message);
+
+    ///
+    ///
+    ///
+    server::tcp_message tcp_connection;
 };
 
 namespace requests
@@ -50,6 +55,11 @@ struct GET
     /// Parse a GET request from a general message
     ///
     static GET from_general_message(general_message message);
+
+    ///
+    /// Handle to the message in case we need to parse more, or for when we have to respond
+    ///
+    server::tcp_message tcp_connection;
 };
 
 ///
@@ -64,9 +74,14 @@ struct POST
     std::string post_data;
 
     ///
-    /// Parse a PUT request from a general message
+    /// Parse a PUT request from a general message and a tcp message
     ///
-    static POST from_general_message(general_message message);
+    static POST from_general_message(general_message message, server::tcp_message);
+
+    ///
+    /// Handle to the message in case we need to parse more, or for when we have to respond
+    ///
+    server::tcp_message tcp_connetion;
 };
 }
 

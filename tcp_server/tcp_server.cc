@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <cstring>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <vector>
 
@@ -83,30 +85,8 @@ void tcp_server::listen_forever() const
         //
         const socket_handle recv_fd = accept(server_fd, (struct sockaddr *) &client_addr, &client_len);
 
-        //
-        // Create a buffer that we'll use to read that file descriptor with
-        //
-        constexpr size_t RECV_BUF_SIZE = 100;
-        uint8_t recv_buff[RECV_BUF_SIZE];
-        size_t bytes_read = RECV_BUF_SIZE;
-
-        //
-        // Now while we continue to fill the buffer, push bytes into the final data vector
-        //
-        std::vector<uint8_t> data;
-        while (bytes_read == RECV_BUF_SIZE)
-        {
-            bytes_read = read(recv_fd, &recv_buff, RECV_BUF_SIZE);
-            std::copy(&recv_buff[0], &recv_buff[bytes_read], std::back_inserter(data));
-        }
-
-        //
-        // If there's no data, don't bother with the callbacks
-        //
-        if (data.empty())
-        {
-            continue;
-        }
+        auto mutex = std::make_shared<std::mutex>();
+        auto data = std::make_shared<std::vector<uint8_t>>();
 
         //
         // data buffer contains all the data from this read, dispatch to callbacks now!
@@ -115,7 +95,8 @@ void tcp_server::listen_forever() const
         //
         for (const callback& cb : callbacks)
         {
-            cb(recv_fd, data);
+            tcp_message message(recv_fd, mutex, data);
+            cb(std::move(message));
         }
     }
 }

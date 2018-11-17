@@ -32,6 +32,7 @@ public: ///////////////////////////////////////////////////////////////////////
     /// Add a new resource to the server, this can be fetched on request
     ///
     void add_resource(resources::abstract_resource::ptr resource);
+
 private: //////////////////////////////////////////////////////////////////////
     ///
     /// Get the resource at the url, this could return null
@@ -41,17 +42,17 @@ private: //////////////////////////////////////////////////////////////////////
     ///
     /// Callback used when new data on the socket arrives
     ///
-    void handle_generic_request(const server::socket_handle& response_fd, std::string data);
+    void handle_generic_request(server::tcp_message message);
 
     ///
     /// Callback to handle GET requests specifically, this will respond to the request if it can
     ///
-    void handle_GET_request(const server::socket_handle& response_fd, requests::GET request);
+    void handle_GET_request(requests::GET request);
 
     ///
     /// Callback to handle POST requests specifically, this will trigger callbacks
     ///
-    void handle_POST_request(const server::socket_handle& response_fd, requests::POST request);
+    void handle_POST_request(requests::POST request);
 
 private: //////////////////////////////////////////////////////////////////////
     ///
@@ -66,7 +67,7 @@ private: //////////////////////////////////////////////////////////////////////
     std::unordered_map<std::string, resources::abstract_resource::ptr> resources;
 
     ///
-    /// Thread handle for the server thread, with a shutdown bool
+    /// Thread handle for the server thread
     ///
     std::thread server_thread;
 };

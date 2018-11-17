@@ -15,11 +15,10 @@ http_server::http_server(const uint16_t port)
     //
     // Forward any messages we get to the generic request handler
     //
-    auto dispatch = [this](const server::socket_handle& response_fd, const std::vector<uint8_t>& data) {
-        std::string string_data(data.begin(), data.end());
-        handle_generic_request(response_fd, std::move(string_data));
+    auto dispatch = [this](server::tcp_message message) {
+        handle_generic_request(std::move(message));
     };
-    server.register_callback(dispatch);
+    server.register_callback(std::move(dispatch));
 
     server.bind_to_port(port);
 }
@@ -70,22 +69,19 @@ const resources::abstract_resource::ptr http_server::fetch_resource(const std::s
 // ############################################################################
 //
 
-void http_server::handle_generic_request(const server::socket_handle& response_fd, std::string data)
+void http_server::handle_generic_request(server::tcp_message message)
 {
-    general_message parsed_message = general_message::from_string(data);
+    general_message parsed_message = general_message::from_message(std::move(message));
 
-    //
-    // From the first 3 characters, we can determine what kind of message we should try to parse
-    //
     try
     {
         if (parsed_message.header.type == "GET")
         {
-            handle_GET_request(response_fd, requests::GET::from_general_message(std::move(parsed_message)));
+            handle_GET_request(requests::GET::from_general_message(std::move(parsed_message)));
         }
         else if (parsed_message.header.type == "POST")
         {
-            handle_POST_request(response_fd, requests::POST::from_general_message(std::move(parsed_message)));
+            //handle_POST_request(message);
         }
         else
         {
@@ -102,14 +98,15 @@ void http_server::handle_generic_request(const server::socket_handle& response_f
 // ############################################################################
 //
 
-void http_server::handle_GET_request(const server::socket_handle& response_fd, requests::GET request)
+void http_server::handle_GET_request(requests::GET request)
 {
     resources::abstract_resource::ptr resource = fetch_resource(request.url);
     if (resource == nullptr)
     {
         responses::NOT_FOUND response;
         LOG_DEBUG(response.get_response_code());
-        server.write(response_fd, responses::generate_response(response));
+        request.tcp_connection.write_to_socket(responses::generate_response(response));
+        request.tcp_connection.close_socket();
         return;
     }
 
@@ -122,53 +119,53 @@ void http_server::handle_GET_request(const server::socket_handle& response_fd, r
     response.metadata["Content-Length"] = std::to_string(response.data.size());
 
     LOG_DEBUG(response.get_response_code());
-    server.write(response_fd, responses::generate_response(response));
-    server.close(response_fd);
+    request.tcp_connection.write_to_socket(responses::generate_response(response));
+    request.tcp_connection.close_socket();
 }
 
 //
 // ############################################################################
 //
 
-void http_server::handle_POST_request(const server::socket_handle& response_fd, requests::POST request)
+void http_server::handle_POST_request(requests::POST request)
 {
-    resources::abstract_resource::ptr resource = fetch_resource(request.url);
-    if (resource == nullptr)
-    {
-        responses::NOT_FOUND response;
-        LOG_DEBUG(response.get_response_code());
-        server.write(response_fd, responses::generate_response(response));
-        return;
-    }
+    // resources::abstract_resource::ptr resource = fetch_resource(request.url);
+    // if (resource == nullptr)
+    // {
+    //     responses::NOT_FOUND response;
+    //     LOG_DEBUG(response.get_response_code());
+    //     server.write(response_fd, responses::generate_response(response));
+    //     return;
+    // }
 
-    const auto send_response = [&](responses::abstract_response&& response){
-        response.metadata["Connection"] = "close";
-        response.metadata["Content-Type"] = resource->get_resource_type();
-        response.metadata["Content-Length"] = response.data.size();
+    // const auto send_response = [&](responses::abstract_response&& response){
+    //     response.metadata["Connection"] = "close";
+    //     response.metadata["Content-Type"] = resource->get_resource_type();
+    //     response.metadata["Content-Length"] = response.data.size();
 
-        LOG_DEBUG(response.get_response_code());
-        server.write(response_fd, responses::generate_response(response));
-        server.close(response_fd);
-    };
+    //     LOG_DEBUG(response.get_response_code());
+    //     server.write(response_fd, responses::generate_response(response));
+    //     server.close(response_fd);
+    // };
 
-    try
-    {
-        //
-        // This may throw if the POST handler fails to do something right
-        //
-        if (resource->handle_post_request(std::move(request)))
-        {
-            send_response(responses::OK{});
-        }
-        else
-        {
-            LOG_ERROR("Post request failed for an unspecified reason!");
-            send_response(responses::NOT_ALLOWED{});
-        }
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Post request failed! Exception: " << e.what());
-        send_response(responses::NOT_ALLOWED{});
-    }
+    // try
+    // {
+    //     //
+    //     // This may throw if the POST handler fails to do something right
+    //     //
+    //     if (resource->handle_post_request(std::move(request)))
+    //     {
+    //         send_response(responses::OK{});
+    //     }
+    //     else
+    //     {
+    //         LOG_ERROR("Post request failed for an unspecified reason!");
+    //         send_response(responses::NOT_ALLOWED{});
+    //     }
+    // }
+    // catch (const std::exception& e)
+    // {
+    //     LOG_ERROR("Post request failed! Exception: " << e.what());
+    //     send_response(responses::NOT_ALLOWED{});
+    // }
 }
